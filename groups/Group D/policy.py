@@ -158,7 +158,7 @@ class Minimaxer(Policy):
         self.depth = depth
         self.player = None  # Determined at first call
 
-    def mount(self) -> None:
+    def mount(self, *args) -> None:
         self.player = None  # Reset for each new game
 
     def act(self, s: np.ndarray) -> int:
