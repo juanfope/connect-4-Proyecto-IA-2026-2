@@ -1,0 +1,59 @@
+# === Python ===
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# === PyCharm / IntelliJ IDEA ===
+.idea/
+*.iml
+*.iws
+out/
+cmake-build-*/
+
+# === Jupyter Notebook ===
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+
+# === Ambientes Virtuales (Virtual Environments) ===
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# === Sistema Operativo ===
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+desktop.ini
+
+# === Archivos de logs o reportes locales (Opcional) ===
+*.log
