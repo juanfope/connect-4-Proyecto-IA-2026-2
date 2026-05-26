@@ -1,37 +1,3 @@
-"""
-MyAgent — Híbrido con Transposition Table + Heurística mejorada
-================================================================
-Mejoras sobre la versión anterior:
-
-1. Transposition Table (TT) persistente por partida
-   La TT se guarda entre jugadas del mismo juego. Esto permite
-   que búsquedas posteriores reutilicen resultados ya calculados,
-   lo que equivale en la práctica a 1-2 niveles extra de profundidad
-   sin costo adicional de tiempo.
-
-2. Heurística con bonus de altura de fila
-   Las amenazas en filas bajas (fondo del tablero) son más valiosas
-   porque son más difíciles de bloquear. Se aplica un multiplicador
-   rb = 1.0 + (ROWS-1-r)*0.15 a las ventanas horizontales.
-
-3. Profundidad ajustada al speedup real de la TT
-   Schedule: < 10 piezas → depth 6, < 28 piezas → depth 6,
-   >= 28 piezas → depth 7. La TT caliente compensa la diferencia
-   con el depth 9 del schedule original.
-
-4. Victoria rápida premiada en el score terminal (+ depth)
-   El Minimax prefiere ganar en el turno más próximo posible,
-   no dilatar partidas ya ganadas.
-
-5. MoveTracker corregido
-   La versión original tenía _extract_move_sequence siempre devolviendo None.
-   Ahora reconstruye la secuencia correctamente al detectar diffs.
-
-6. Tabla de aperturas con validación contra Minimax
-   Si la jugada del libro es claramente peor que la mejor del motor
-   (diferencia > 20 pts), se descarta y se usa el Minimax directamente.
-"""
-
 import numpy as np
 from connect4.policy import Policy
 
@@ -39,9 +5,9 @@ from connect4.policy import Policy
 ROWS = 6
 COLS = 7
 
-# ---------------------------------------------------------------------------
+
 # TABLA DE APERTURAS
-# ---------------------------------------------------------------------------
+
 
 OPENING_BOOK: dict[tuple[int, ...], int] = {
     (): 3,
@@ -94,9 +60,9 @@ def lookup_opening(move_sequence: tuple[int, ...]) -> int | None:
     return None
 
 
-# ---------------------------------------------------------------------------
+
 # UTILIDADES DE TABLERO
-# ---------------------------------------------------------------------------
+
 
 def _valid_cols(board: np.ndarray) -> list[int]:
     return [c for c in range(COLS) if board[0, c] == 0]
@@ -158,9 +124,9 @@ def _count_threats(board: np.ndarray, player: int) -> int:
     return count
 
 
-# ---------------------------------------------------------------------------
+
 # HEURÍSTICA
-# ---------------------------------------------------------------------------
+
 
 def _score_window(window: list, me: int) -> float:
     opp = -me
@@ -208,9 +174,8 @@ def _score_board(board: np.ndarray, me: int) -> float:
     return score
 
 
-# ---------------------------------------------------------------------------
 # MINIMAX CON ALPHA-BETA Y TRANSPOSITION TABLE
-# ---------------------------------------------------------------------------
+
 
 def _minimax(
     board: np.ndarray,
@@ -266,9 +231,9 @@ def _minimax(
     return result
 
 
-# ---------------------------------------------------------------------------
+
 # MOVE TRACKER — reconstruye secuencia de jugadas real
-# ---------------------------------------------------------------------------
+
 
 class MoveTracker:
     def __init__(self):
@@ -316,22 +281,11 @@ def _reconstruct_sequence(board: np.ndarray) -> list[int]:
     return [col for _, col in pieces]
 
 
-# ---------------------------------------------------------------------------
+
 # POLÍTICA HÍBRIDA — MyAgent
-# ---------------------------------------------------------------------------
+
 
 class MyAgent(Policy):
-    """
-    Agente híbrido mejorado.
-
-    Árbol de decisión por prioridad:
-      0. Ganar inmediatamente
-      1. Bloquear victoria inmediata del oponente
-      2. Crear doble amenaza propia (fork)
-      3. Bloquear doble amenaza del oponente
-      4. Tabla de aperturas validada contra Minimax (primeras 8 piezas)
-      5. Minimax Alpha-Beta con Transposition Table persistente
-    """
 
     # Profundidad según piezas en el tablero.
     # La TT acumulada entre jugadas equivale en la práctica a 1-2 niveles extra.
